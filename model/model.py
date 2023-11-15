@@ -13,7 +13,7 @@ from tensorflow.python.ops import math_ops, array_ops
 from tensorflow.keras.utils import to_categorical
 
 class CNNClassifier:
-    def __init__(self, input_shape, num_classes, n_conv_layers=3, filter_size=9, n_dense_units=128, learning_rate=0.0001):
+    def __init__(self, input_shape, num_classes, n_conv_layers=5, filter_size=9, n_dense_units=128, learning_rate=0.0001):
         self.input_shape = input_shape
         self.num_classes = num_classes
         self.n_conv_layers = n_conv_layers
@@ -23,7 +23,7 @@ class CNNClassifier:
         self.model = self._build_model()
 
     def _build_model(self):
-        inputs = Input(shape=self.input_shape)
+        inputs = Input(shape=(None,self.input_shape))
         x = inputs
         for i in range(self.n_conv_layers):
             x = Conv1D(filters=(i + 1) * 10, kernel_size=self.filter_size, padding="same", activation='relu')(x)
