@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 from keras.backend import floatx, categorical_crossentropy
 from keras.callbacks import ModelCheckpoint
