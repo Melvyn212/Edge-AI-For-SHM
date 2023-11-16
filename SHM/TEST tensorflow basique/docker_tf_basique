@@ -1,0 +1,19 @@
+# Utilisez l'image de base L4T
+FROM nvcr.io/nvidia/l4t-base:r32.4.4
+
+# Mettez à jour et installez les dépendances nécessaires
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev
+
+# Installez TensorFlow pour Jetson
+RUN pip3 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v44 tensorflow
+
+# Copiez vos scripts ou fichiers de modèle dans le conteneur
+COPY . /app
+
+# Définissez le répertoire de travail
+WORKDIR /app
+
+# Commande pour exécuter votre application
+CMD ["python3", "script.py"]
