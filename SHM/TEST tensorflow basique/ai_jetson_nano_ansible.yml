@@ -1,0 +1,414 @@
+# https://github.com/MrStevenSmith/ai_jetson_nano_ansible
+# Steven Smith
+# v1.0 - 10 March 2020
+
+---
+-
+  name: 'Jetson Nano AI Image'
+  hosts: '{{ host }}'
+  remote_user: '{{ user }}'
+
+  vars:
+
+###
+
+# Modify the below to be the remote host to be configured and the local user on that host which has sudo permissions
+
+    host: 10.0.1.107
+    user: adehundeag
+
+# If required change NTP settings
+
+    system_timezone: Europe/London
+    ntp_servers:
+      - 0.arch.pool.ntp.org
+      - 1.arch.pool.ntp.org
+      - 2.arch.pool.ntp.org
+      - 3.arch.pool.ntp.org
+    ntp_fallback_servers:
+      - 0.uk.pool.ntp.org
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+
+# If require change swapfile location and size
+
+    swap_file_path: /var/swapfile
+    swap_file_size: 6G
+
+###
+
+    packages_apt:
+      - nano
+      - unzip
+      - git
+      - libfreetype6-dev
+      - libpng-dev
+      - libatlas-base-dev
+      - libopenblas-base
+      - libopenblas-dev
+      - cmake
+      - liblapack-dev
+      - libjpeg-dev
+      - gfortran
+      - python3-opencv
+      - pkg-config
+      - libhdf5-100
+      - libhdf5-dev
+      - python3-pip
+      - python3-venv
+    
+    packages_pip:
+      - wheel
+      - pybind11
+      - pillow<7
+      - jupyter
+      - jupyterlab
+
+    packages_pima:
+      - ipython
+      - matplotlib
+      - pandas
+      - rise
+      - scipy
+      - scikit-learn
+      - seaborn
+
+
+  tasks:
+
+      # Configure NTP
+
+      - name: Set time zone
+        timezone:
+          name: '{{ system_timezone }}'
+        become: yes
+
+      - name: Configure systemd-timesyncd
+        template:
+          src: timesyncd.conf.j2
+          dest: /etc/systemd/timesyncd.conf
+          owner: root
+          group: root
+          mode: 0644
+        register: timesyncd_config
+        become: yes
+
+      - name: Restart systemd-timesyncd
+        service:
+          name: systemd-timesyncd
+          enabled: yes
+          state: restarted
+        when: timesyncd_config.changed
+        become: yes
+
+      # Create swap file
+
+      - name: Set swap file path variable
+        set_fact:
+          swap_file: '{{swap_file_path}}'
+
+      - name: Check if swap file exists
+        stat:
+          path: '{{swap_file}}'
+        register: swap_file_check
+
+      - name: Create swap file
+        command: fallocate -l {{swap_file_size}} {{swap_file}}
+        when: not swap_file_check.stat.exists
+        become: yes
+
+      - name: Change swap file permissions
+        file: path={{swap_file}}
+              owner=root
+              group=root
+              mode=0600
+        become: yes
+
+      - name: Format swap file
+        command: 'mkswap {{swap_file}}'
+        when: not swap_file_check.stat.exists
+        become: yes
+
+      - name: Write swap entry in fstab
+        mount: name=swap
+              src=/var/swapfile
+              fstype=swap
+              opts=sw
+              passno=0
+              dump=0
+              state=present
+        become: yes
+
+      - name: Mount swap file
+        command: swapon -a
+        when: not swap_file_check.stat.exists
+        become: yes
+
+      # Create AI root directories
+
+      - name: Create AI root directory
+        file:
+          path: ~/ai
+          state: directory
+          mode: '0755'
+
+      - name: Create AI hidden directory
+        file:
+          path: ~/.ai
+          state: directory
+          mode: '0755'
+
+      - name: Create ~/ai/datasets directory
+        file:
+          path: ~/ai/datasets
+          state: directory
+          mode: '0755'
+
+      - name: Create ~/ai/notebooks directory
+        file:
+          path: ~/ai/notebooks
+          state: directory
+          mode: '0755'
+
+      # Stop and disable syslog
+
+      - name: Stop and disable syslog
+        service:
+          name: rsyslog
+          state: stopped
+          enabled: no
+        become: yes
+
+      # Update and tidy apt
+
+      - name: Install apt-utils
+        apt:
+          name: apt-utils
+          state: present
+        become: yes
+
+      - name: Run apt update
+        apt:
+          update_cache: yes
+        become: yes
+
+      - name: Run apt upgrade
+        apt:
+          name: '*'
+          state: latest
+        become: yes
+
+      - name: Remove packages that are no longer required
+        apt:
+          autoremove: yes
+        become: yes
+
+      # Install dependencies (apt)
+
+      - name: Install dependencies (apt)
+        apt:
+          name: '{{ packages_apt }}'
+          state: present
+        become: yes
+      
+      # Install dependencies (pip3)
+
+      - name: Install cython (pip3)
+        pip:
+          name: cython
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+
+      - name: Install numpy (pip3)
+        pip:
+          name: numpy
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+
+      - name: Install dependencies (pip3)
+        pip:
+          name: '{{ packages_pip }}'
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+      
+      # Create Jupyter configuration file
+
+      - name: Check if Jupyter configuration file exists
+        stat:
+          path: ~/.jupyter/jupyter_notebook_config.py
+        register: jupyter_config_check
+
+      - name: Generate Jupyter config file
+        command: ~/python-envs/ai/bin/jupyter-notebook --generate-config
+        when: not jupyter_config_check.stat.exists
+
+      # Enable Jupyter to listen on all IP's
+
+      - name: Enable Jupyter to listen on all IP's
+        lineinfile:
+          path: ~/.jupyter/jupyter_notebook_config.py
+          regexp: '^c.NotebookApp.ip'
+          line: c.NotebookApp.ip = '*'
+      
+      # Set Jupyter to listen on port 8888
+
+      - name: Set Jupyter to listen on port 8888
+        lineinfile:
+          path: ~/.jupyter/jupyter_notebook_config.py
+          regexp: '^c.NotebookApp.port'
+          line: c.NotebookApp.port = 8888
+
+      # Set Jupyter password
+
+      - name: Set Jupyter password
+        lineinfile:
+          path: ~/.jupyter/jupyter_notebook_config.py
+          regexp: '^c.NotebookApp.password'
+          line: c.NotebookApp.password = u'sha1:43819219905f:8399d9512c2df00376e1107bd3e3352cf18fc366'
+
+      # Create Jupyter environment file
+
+      - name: Check if Jupyter environment file exists
+        stat:
+          path: ~/.jupyter/env
+        register: jupyter_env_check
+
+      - name: Create Jupyter environment file
+        file:
+          path: ~/.jupyter/env
+          state: touch
+        when: not jupyter_env_check.stat.exists
+
+      # Populate Jupyter environment file
+
+      - name: Set Jupyter environment file PATH variable
+        lineinfile:
+          path: ~/.jupyter/env
+          regexp: '^PATH='
+          line: PATH=~/python-envs/ai/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/cuda/bin:$PATH
+
+      - name: Set Jupyter environment file LD_LIBRARY_PATH variable
+        lineinfile:
+          path: ~/.jupyter/env
+          regexp: '^LD_LIBRARY_PATH='
+          line: LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+
+      - name: Set Jupyter environment file CUDA_HOME variable
+        lineinfile:
+          path: ~/.jupyter/env
+          regexp: '^CUDA_HOME='
+          line: CUDA_HOME=/usr/local/cuda
+
+      - name: Set Jupyter environment file CUDA_VISIBLE_DEVICES variable
+        lineinfile:
+          path: ~/.jupyter/env
+          regexp: '^CUDA_VISIBLE_DEVICES='
+          line: CUDA_VISIBLE_DEVICES=0
+
+      # Create Jupyter service
+
+      - name: Check if the Jupyter service exists
+        stat:
+          path: /etc/systemd/system/jupyter.service
+        register: jupyter_service
+        become: yes
+
+      - name: Copy jupyter.service to remote host
+        copy:
+          src: jupyter.service
+          dest: /etc/systemd/system/jupyter.service
+          owner: root
+          group: root
+          mode: 0755
+        become: yes
+        when: not jupyter_service.stat.exists
+
+      - name: Replace USERNAME variable in jupyter.service file
+        replace:
+          path: /etc/systemd/system/jupyter.service
+          regexp: '<<USERNAME>>'
+          replace: '{{ user }}'
+        become: yes
+        when: not jupyter_service.stat.exists
+
+      - name: Enable and start jupyter.service
+        service:
+          name: jupyter
+          daemon_reload: yes
+          enabled: yes
+          state: restarted
+        become: yes
+
+      # Enable i2c permissions
+
+      - name: Enable i2c permissions
+        user:
+          name: '{{ user }}'
+          shell: /bin/bash
+          groups: i2c
+          append: yes
+        become: yes
+
+      # Install Pima Indians dependencies
+
+      - name: Install Pima Indians dependencies
+        pip:
+          name: '{{ packages_pima }}'
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+
+      # Install Pima Indians files
+
+      - name: Create ~/ai/datasets/pima-indians-diabetes directory
+        file:
+          path: ~/ai/datasets/pima-indians-diabetes
+          state: directory
+          mode: '0755'
+
+      - name: Copy Pima Indians dataset
+        copy:
+          src: datasets/pima-indians-diabetes/pima-indians-diabetes.csv
+          dest: ~/ai/datasets/pima-indians-diabetes/pima-indians-diabetes.csv
+          owner: '{{ user }}'
+          group: '{{ user }}'
+          mode: 0644
+
+      - name: Copy Pima Indians Jupyter notebook
+        copy:
+          src: notebooks/pima-indians-diabetes.ipynb
+          dest: ~/ai/notebooks/pima-indians-diabetes.ipynb
+          owner: '{{ user }}'
+          group: '{{ user }}'
+          mode: 0644
+
+      # Install doorcam dependencies
+
+      - name: Install doorcam dependencies
+        pip:
+          name: '{{ packages_doorcam }}'
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+
+      
+      # Install PyTorch 1.2.0
+
+      - name: Download PyTorch v1.2.0
+        get_url:
+          url: https://nvidia.box.com/shared/static/06vlvedmqpqstu1dym49fo7aapgfyyu9.whl
+          dest: ~/.ai/torch-1.2.0a0+8554416-cp36-cp36m-linux_aarch64.whl
+
+      - name: Install PyTorch v1.2.0
+        pip:
+          name: ~/.ai/torch-1.2.0a0+8554416-cp36-cp36m-linux_aarch64.whl
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+      
+      # Install TensorFlow
+
+      - name: Install TensorFlow
+        pip:
+          name: https://developer.download.nvidia.com/compute/redist/jp/v42/tensorflow-gpu/tensorflow_gpu-2.0.0+nv19.11-cp36-cp36m-linux_aarch64.whl
+          virtualenv: ~/python-envs/ai
+          virtualenv_command: /usr/bin/python3.6 -m venv
+
+  
