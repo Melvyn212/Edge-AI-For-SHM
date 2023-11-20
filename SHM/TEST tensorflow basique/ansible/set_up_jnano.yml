@@ -1,0 +1,127 @@
+---
+- name: Setup AI tools on Jetson Nano
+  hosts: jetson_nano
+  become: yes
+
+  vars:
+
+    system_timezone: Europe/London
+    ntp_servers:
+      - 0.arch.pool.ntp.org
+      - 1.arch.pool.ntp.org
+      - 2.arch.pool.ntp.org
+      - 3.arch.pool.ntp.org
+    ntp_fallback_servers:
+      - 0.uk.pool.ntp.org
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+
+
+  tasks:
+
+
+      # Configure NTP
+
+    - name: Set time zone
+      timezone:
+        name: '{{ system_timezone }}'
+      become: yes
+
+    - name: Configure systemd-timesyncd
+      template:
+        src: timesyncd.conf.j2
+        dest: /etc/systemd/timesyncd.conf
+        owner: root
+        group: root
+        mode: 0644
+      register: timesyncd_config
+      become: yes
+
+    - name: Restart systemd-timesyncd
+      service:
+        name: systemd-timesyncd
+        enabled: yes
+        state: restarted
+      when: timesyncd_config.changed
+      become: yes
+
+     # Update and tidy apt
+      - name: Install apt-utils
+        apt:
+          name: apt-utils
+          state: present
+        become: yes
+
+      - name: Run apt update
+        apt:
+          update_cache: yes
+        become: yes
+
+      - name: Run apt upgrade
+        apt:
+          name: '*'
+          state: latest
+        become: yes
+
+      - name: Remove packages that are no longer required
+        apt:
+          autoremove: yes
+        become: yes
+
+      # Install  dependencies
+
+    - name: Install essential packages
+      apt:
+        name:
+          - python3-pip
+          - git
+          - build-essential
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Add user to Docker group
+      user:
+        name: "{{ ansible_user }}"
+        group: docker
+        append: yes
+
+    - name: Install NVIDIA Docker runtime
+      shell: |
+        distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+        curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+        curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+        sudo apt-get update
+        sudo apt-get install -y nvidia-docker2
+        sudo systemctl restart docker
+      args:
+        executable: /bin/bash
+
+
+    - name: Add repository for jtop
+      apt_repository:
+        repo: ppa:jetsonhacks/ppa
+        state: present
+
+    - name: Check if jtop is installed
+      command: dpkg -l | grep jtop
+      register: jtop_installed
+      ignore_errors: true
+
+    - name: Remove jtop if installed
+      apt:
+        name: jtop
+        state: absent
+      when: jtop_installed.rc == 0
+
+    - name: Install jtop
+      apt:
+        update_cache: yes
+        name: jtop
+        state: present
+
+    - name: Redémarrer le système
+      ansible.builtin.reboot:
