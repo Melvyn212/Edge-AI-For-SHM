@@ -8,7 +8,7 @@ from keras.regularizers import l1_l2
 from sklearn.model_selection import train_test_split
 from tensorflow import convert_to_tensor
 from tensorflow.python.framework.smart_cond import smart_cond
-from tensorflow.python.ops import math_ops, array_ops
+from tensorflow.python.ops import math_ops array_ops
 from tensorflow.keras.utils import to_categorical
 
 class CNNClassifier:
