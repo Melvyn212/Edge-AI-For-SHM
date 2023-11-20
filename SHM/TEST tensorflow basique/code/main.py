@@ -1,6 +1,6 @@
 from sklearn import datasets
-from iris_data_processor import IrisDataProcessor  # Remplacez par le nom de votre fichier
-from iris_model import IrisModel  # Remplacez par le nom de votre fichier
+from Processing import IrisDataProcessor  # Remplacez par le nom de votre fichier
+from model import IrisModel  # Remplacez par le nom de votre fichier
 
 def main():
     # Chargement de l'ensemble de données Iris
