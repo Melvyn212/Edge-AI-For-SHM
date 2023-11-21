@@ -1,6 +1,7 @@
 ---
 - name: Setup AI tools on Jetson Nano
-  hosts: jetson_nano
+  hosts: localhost
+  connection: local
   become: yes
 
   vars:
@@ -85,8 +86,8 @@
 
     - name: Add user to Docker group
       user:
-        name: "{{ ansible_user }}"
-        group: docker
+        name: "melvyn212"
+        groups: docker
         append: yes
 
     - name: Install NVIDIA Docker runtime
@@ -101,16 +102,9 @@
         executable: /bin/bash
 
 
-    - name: Installer pip3 pour Python3
-      apt:
-        name: python3-pip
-        state: present
-
     - name: Installer jetson-stats (incluant jtop) via pip
       become: yes
       pip:
         name: jetson-stats
         extra_args: --upgrade
 
-    - name: Redémarrer le système
-      ansible.builtin.reboot:
