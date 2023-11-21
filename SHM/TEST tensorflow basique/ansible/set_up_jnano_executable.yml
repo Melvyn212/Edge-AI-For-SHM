@@ -16,6 +16,7 @@
       - 0.uk.pool.ntp.org
       - 0.pool.ntp.org
       - 1.pool.ntp.org
+    ansible_user: melvyn212
 
 
   tasks:
@@ -86,7 +87,7 @@
 
     - name: Add user to Docker group
       user:
-        name: "melvyn212"
+        name: "{{ ansible_user }}"
         groups: docker
         append: yes
 
@@ -102,9 +103,13 @@
         executable: /bin/bash
 
 
+    - name: Installer pip3 pour Python3
+      apt:
+        name: python3-pip
+        state: present
+
     - name: Installer jetson-stats (incluant jtop) via pip
       become: yes
       pip:
         name: jetson-stats
         extra_args: --upgrade
-

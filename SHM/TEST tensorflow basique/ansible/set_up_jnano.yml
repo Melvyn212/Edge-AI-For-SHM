@@ -15,6 +15,7 @@
       - 0.uk.pool.ntp.org
       - 0.pool.ntp.org
       - 1.pool.ntp.org
+    ansible_user: melvyn212
 
 
   tasks:
@@ -86,7 +87,7 @@
     - name: Add user to Docker group
       user:
         name: "{{ ansible_user }}"
-        group: docker
+        groups: docker
         append: yes
 
     - name: Install NVIDIA Docker runtime
