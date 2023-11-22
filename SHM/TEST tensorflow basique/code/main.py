@@ -5,8 +5,8 @@ tracker.start()
 
 
 from sklearn import datasets
-from Processing import IrisDataProcessor  # Remplacez par le nom de votre fichier
-from model import IrisModel  # Remplacez par le nom de votre fichier
+from Processing import IrisDataProcessor 
+from model import IrisModel  
 
 
 
