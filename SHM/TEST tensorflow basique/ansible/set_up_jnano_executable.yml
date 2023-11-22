@@ -102,11 +102,16 @@
       args:
         executable: /bin/bash
 
-
-    - name: Installer pip3 pour Python3
+    - name : Installer curl
       apt:
-        name: python3-pip
+        name: curl
         state: present
+
+    - name: Installer json_pp (via perl)
+      apt:
+       name: libjson-pp-perl
+       state: present
+
 
     - name: Installer jetson-stats (incluant jtop) via pip
       become: yes
