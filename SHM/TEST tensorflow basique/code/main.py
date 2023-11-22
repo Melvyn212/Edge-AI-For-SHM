@@ -1,6 +1,14 @@
+from codecarbon import EmissionsTracker
+
+tracker = EmissionsTracker()
+tracker.start()
+
+
 from sklearn import datasets
 from Processing import IrisDataProcessor  # Remplacez par le nom de votre fichier
 from model import IrisModel  # Remplacez par le nom de votre fichier
+
+
 
 def main():
     # Chargement de l'ensemble de données Iris
@@ -28,3 +36,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+tracker.stop()
