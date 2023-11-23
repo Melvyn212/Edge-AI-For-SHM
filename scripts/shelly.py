@@ -218,7 +218,16 @@ def exec_script(args):
     
     request = Request('GET', url, params=req_params)
     response = call_shelly(request, args)
-    print_response(response.json()['result'], args)
+    
+    result = response.json()['result']
+    try:
+        json_result = json.loads(result)
+        print_response(json_result, args)
+    except ValueError as e:
+        debug(3, f"Result payload is not json : {e}", args)
+        print_response(result, args)
+    
+
     
 
 def stop_script(args):
@@ -238,8 +247,9 @@ def update_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptputcode
     """
-    url = format_url(args.host, 'Script.PutCode')
-    print(f"Update script {args.id} with file {args.file}")
+    debug(2, f"Update script {args.id} with file {args.file}", args)
+
+    upload_file_in_chunks(args, 'Script.PutCode')
 
 
 def delete_script(args):

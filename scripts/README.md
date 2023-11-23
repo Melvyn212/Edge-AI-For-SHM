@@ -33,5 +33,5 @@ $ ./shelly.py -p scripts list
         "running": false
     }
 ]
-abonneau@jetson-nano-1-107:~/Edge-AI-For-SHM/scripts$ ./shelly.py -p scripts delete 1
+$ ./shelly.py -p scripts delete 1
 ```
