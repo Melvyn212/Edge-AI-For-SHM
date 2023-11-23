@@ -1,14 +1,14 @@
 #! /usr/bin/python3
 
-import argparse
-import requests
+from argparse import ArgumentParser
+from requests import Session, Request
 import json
 import sys
 
 def main():
     # create the top-level parser
-    parser = argparse.ArgumentParser(prog='shelly')
-    parser.add_argument('-t', '--target', help='IP adress or FQDN of the shelly device', default='10.0.0.250', metavar='device_ip')
+    parser = ArgumentParser(prog='shelly')
+    parser.add_argument('--host', help='IP adress or FQDN of the shelly device', default='10.0.0.250', metavar='device_ip')
     parser.add_argument("-v", "--verbosity", action="count", default=0, help="Enable verbosity")
     parser.add_argument("-p", "--pretty-print", action="store_true", help="Pretty print output")
 
@@ -22,7 +22,7 @@ def main():
     args = parser.parse_args()
 
     if args.verbosity >= 2:
-        print(f"debug2: {args}")
+        debug(2, f"{args}", args)
 
     if hasattr(args, 'func'):
         args.func(args)
@@ -34,13 +34,14 @@ def create_scripts_menu(subparsers_base):
     parser_scripts = subparsers_base.add_parser('scripts', help='Shelly Scripts Menu')
     subparsers_scripts = parser_scripts.add_subparsers(title='action', dest='action')
 
-    # Create common argument parser for start, stop, exec, update and delete endpoints
-    adressable_parser = argparse.ArgumentParser(add_help=False)
+    # Create common argument parser for start, getcode, stop, exec, update and delete endpoints
+    adressable_parser = ArgumentParser(add_help=False)
     adressable_parser.add_argument('id', help='Script slot id', type=int)
 
     # Create common argument parser for create and update endpoints
-    file_transporting_parser = argparse.ArgumentParser(add_help=False)
+    file_transporting_parser = ArgumentParser(add_help=False)
     file_transporting_parser.add_argument('file', help='Script file', type=str)
+    file_transporting_parser.add_argument('--chunk-size', help='Size of uploaded chunks', type=int, default=1024)
 
     # Create the parser for the "list" command
     parser_list = subparsers_scripts.add_parser('list', help='List scripts on the Shelly device')
@@ -49,7 +50,7 @@ def create_scripts_menu(subparsers_base):
 
     # Create the parser for the "create" command
     parser_create = subparsers_scripts.add_parser('create', help='Create a script on the Shelly device', parents=[file_transporting_parser])
-    parser_create.add_argument('title', help='Name of your script')
+    parser_create.add_argument('name', help='Name of your script')
     parser_create.set_defaults(func=create_script)
 
     # Create the parser for the "start" command
@@ -58,12 +59,16 @@ def create_scripts_menu(subparsers_base):
 
     # Create the parser for the "exec" command
     parser_exec = subparsers_scripts.add_parser('exec', help='Execute a script on the Shelly device', parents=[adressable_parser])
-    parser_exec.add_argument('code', help='Argument to evaluate', type=str)
+    parser_exec.add_argument('code', help='Code to evaluate', type=str)
     parser_exec.set_defaults(func=exec_script)
 
     # Create the parser for the "stop" command
     parser_stop = subparsers_scripts.add_parser('stop', help='Stop a script on the Shelly device', parents=[adressable_parser])
     parser_stop.set_defaults(func=stop_script)
+
+    # Create the parser for the "getcode" command
+    parser_get_code = subparsers_scripts.add_parser('getcode', help='Downloads code from an existing script', parents=[adressable_parser])
+    parser_get_code.set_defaults(func=get_code_script)
 
     # Create the parser for the "update" command
     parser_update = subparsers_scripts.add_parser('update', help='Update a script on the Shelly device', parents=[adressable_parser,file_transporting_parser])
@@ -85,32 +90,67 @@ def create_switch_menu(subparsers_base):
 
 
 
+def debug(verbosity, message, args, end='\n'):
+    if (args.verbosity >= verbosity):
+        print(f"[debug{verbosity}] {message}", file=sys.stderr, end=end)
+
+def debug_request(req, args):
+    debug(3, '{}\n{}\r\n{}\r\n\r\n{}'.format(
+        'The following HTTP request have been sent:',
+        req.method + ' ' + req.url,
+        '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
+        req.body,
+    ), args)
+
+
 # RPC help functions
 
-def format_endpoint(base, endpoint):
-    return 'http://'+base+'/rpc/'+endpoint
+def format_url(base, endpoint):
+    return f"http://{base}/rpc/{endpoint}"
 
 def print_response(json_payload, args):
     if args.pretty_print :
-        print(json.dumps(json_payload, sort_keys=True, indent=4))
+        response = json.dumps(json_payload, sort_keys=True, indent=4)
     else :
-        print(json.dumps(json_payload))
+        response = json.dumps(json_payload)
+    response = response.strip('"')
+    print(response)
+    return response
 
 def call_shelly(request, args):
-    if args.verbosity >= 1:
-        print(f"[debug1] Calling endpoint {request.url}")
-
-    response = requests.Session().send(request.prepare())
-
-    if args.verbosity >= 1:
-        print(f"[debug1] Response Payload : {response.text}", end="")
+    debug(1, f"Calling endpoint {request.url}", args)
+    debug_request(request.prepare(), args)
+    if len(request.url) > 8000: # https://www.rfc-editor.org/rfc/rfc9110#name-uri-references
+        debug(3, f"Your Request url is {len(request.url)} long. That may be a problem !")
+    response = Session().send(request.prepare())
+    debug(1, f"Response Payload : {response.text}", args, end="")
 
     if response.ok:
         return response
     else:
         print(f"Error ({response.status_code}) executing method : {response.json()['message']}", file=sys.stderr)
         sys.exit(2)
+
+def upload_file_in_chunks(args, endpoint):
+    with open(args.file, 'r', encoding='utf-8') as f:
+        code = f.read()
     
+    debug(2, f"Script Payload has length {len(code)} bytes. You will need {(len(code)//args.chunk_size) + 1} chunk(s)", args)
+
+    url = format_url(args.host, endpoint)
+    request_data = {'id': args.id, 'append': False}
+
+    pos = 0
+    append = False
+    while pos < len(code):
+        chunk = code[pos : pos + args.chunk_size]
+        pos += len(chunk)
+        
+        request_data['code'] = chunk
+        request_json = json.dumps(request_data, ensure_ascii=False)
+        request = Request('POST', url, data=request_json.encode('utf-8'))
+        call_shelly(request, args)
+        request_data['append'] = True
 
 
 # Core Scripts functions
@@ -119,8 +159,11 @@ def list_scripts(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptlist
     """
-    endpoint = format_endpoint(args.target, 'Script.List')
-    request = requests.Request('GET', endpoint)
+    url = format_url(args.host, 'Script.List')
+
+    debug(2, f"List scripts", args)
+
+    request = Request('GET', url)
     response = call_shelly(request, args)
     print_response(response.json()['scripts'], args)
 
@@ -129,66 +172,94 @@ def create_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptcreate
     """
-    script_name = args.title
-    script_file_name = args.file
-    endpoint = format_endpoint(args.target, 'Script.Create')
-    print(f"Create script {script_name} from file {script_file_name}")
+    url = format_url(args.host, 'Script.Create')
+
+    debug(2, f"Create script {args.name} from file {args.file}", args)
+
+    request = Request('GET', url, params={'name': f"\"{args.name.strip()}\""})
+    response = call_shelly(request, args)
+
+    args.id = response.json()['id']
+    upload_file_in_chunks(args, 'Script.PutCode')
+    print(args.id)
 
 
 def start_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptstart
     """
-    script_id = args.id
-    endpoint = format_endpoint(args.target, 'Script.Start')
-    print(f"Start script {script_id}")
+    url = format_url(args.host, 'Script.Start')
+
+    debug(2, f"Start script {args.id}", args)
+
+    request = Request('GET', url, params={'id': args.id})
+    response = call_shelly(request, args)
+    print_response(response.json(), args)
+
+def get_code_script(args):
+    """
+    Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptgetcode
+    """
+    url = format_url(args.host, 'Script.GetCode')
+    request = Request('GET', url, params={'id': args.id})
+    response = call_shelly(request, args)
+    print_response(response.json()['data'], args)
 
 
 def exec_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scripteval
     """
-    script_id = args.id
-    param_str = args.code
-    endpoint = format_endpoint(args.target, 'Script.Eval')
-    print(f"Start script {script_id} with params : \"{param_str}\"")
-
+    debug(2, f"Start script {args.id} with params : \"{args.code}\"", args)
+    url = format_url(args.host, 'Script.Eval')
+    req_params = {'id': args.id}
+    if args.code:
+        req_params['code'] = f"\"{args.code}\""
+    
+    request = Request('GET', url, params=req_params)
+    response = call_shelly(request, args)
+    print_response(response.json()['result'], args)
+    
 
 def stop_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptstop
     """
-    script_id = args.id
-    endpoint = format_endpoint(args.target, 'Script.Stop')
-    print(f"Stop script {script_id}")
+    url = format_url(args.host, 'Script.Stop')
+
+    debug(2, f"Stop script {args.id}", args)
+
+    request = Request('GET', url, params={'id': args.id})
+    response = call_shelly(request, args)
+    print_response(response.json(), args)
 
 
 def update_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptputcode
     """
-    script_id = args.id
-    script_file_name = args.file
-    endpoint = format_endpoint(args.target, 'Script.PutCode')
-    print(f"Update script {script_id} with file {script_file_name}")
+    url = format_url(args.host, 'Script.PutCode')
+    print(f"Update script {args.id} with file {args.file}")
 
 
 def delete_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptdelete
     """
-    script_id = args.id
-    endpoint = format_endpoint(args.target, 'Script.Delete')
-    print(f"Delete script {script_id}")
+    url = format_url(args.host, 'Script.Delete')
+
+    debug(2, f"Delete script {args.id}", args)
+
+    request = Request('GET', url, params={'id': args.id})
+    call_shelly(request, args)
 
 # Switch functions
 def switch_get_status(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Switch#switchgetstatus
     """
-    switch_id = args.id
-    endpoint = format_endpoint(args.target, 'Switch.GetStatus')
-    request = requests.Request('GET', endpoint, params={'id': switch_id})
+    url = format_url(args.host, 'Switch.GetStatus')
+    request = Request('GET', url, params={'id': args.id})
     response = call_shelly(request, args)
     print_response(response.json(), args)
 
