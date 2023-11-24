@@ -57,10 +57,15 @@ def create_scripts_menu(subparsers_base):
     parser_start = subparsers_scripts.add_parser('start', help='Start a script on the Shelly device', parents=[adressable_parser])
     parser_start.set_defaults(func=start_script)
 
-    # Create the parser for the "exec" command
-    parser_exec = subparsers_scripts.add_parser('exec', help='Execute a script on the Shelly device', parents=[adressable_parser])
-    parser_exec.add_argument('code', help='Code to evaluate', type=str)
-    parser_exec.set_defaults(func=exec_script)
+    # Create the parser for the "eval" command
+    parser_eval = subparsers_scripts.add_parser('eval', help='Execute a script on the Shelly device', parents=[adressable_parser])
+    parser_eval.add_argument('code', help='Code to evaluate', type=str)
+    parser_eval.set_defaults(func=eval_script)
+
+    # Create the parser for the "call" command
+    parser_call = subparsers_scripts.add_parser('call', help='Call a script registered HTTP API', parents=[adressable_parser])
+    parser_call.add_argument('endpoint', help='API endpoint to call', type=str)
+    parser_call.set_defaults(func=call_script_api)
 
     # Create the parser for the "stop" command
     parser_stop = subparsers_scripts.add_parser('stop', help='Stop a script on the Shelly device', parents=[adressable_parser])
@@ -105,8 +110,8 @@ def debug_request(req, args):
 
 # RPC help functions
 
-def format_url(base, endpoint):
-    return f"http://{base}/rpc/{endpoint}"
+def format_url(base, endpoint, protocol='http://', section='/rpc'):
+    return f"{protocol}{base}{section}/{endpoint}"
 
 def print_response(json_payload, args):
     if args.pretty_print :
@@ -167,7 +172,6 @@ def list_scripts(args):
     response = call_shelly(request, args)
     print_response(response.json()['scripts'], args)
 
-
 def create_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptcreate
@@ -182,7 +186,6 @@ def create_script(args):
     args.id = response.json()['id']
     upload_file_in_chunks(args, 'Script.PutCode')
     print(args.id)
-
 
 def start_script(args):
     """
@@ -205,8 +208,7 @@ def get_code_script(args):
     response = call_shelly(request, args)
     print_response(response.json()['data'], args)
 
-
-def exec_script(args):
+def eval_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scripteval
     """
@@ -226,9 +228,25 @@ def exec_script(args):
     except ValueError as e:
         debug(3, f"Result payload is not json : {e}", args)
         print_response(result, args)
-    
 
+def call_script_api(args):
+    """
+    Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/Scripts/ShellyScriptLanguageFeatures/#httpserverregisterendpoint
+    """
+    debug(2, f"Call script {args.id} API with endpoint : \"{args.endpoint}\"", args)
+    url = format_url(args.host, section="/script", endpoint=f"{args.id}/{args.endpoint}")
     
+    request = Request('GET', url)
+    response = call_shelly(request, args)
+    
+    result = response.json()
+    try:
+        json_result = json.loads(result)
+        print_response(json_result, args)
+    except (ValueError, TypeError) as e:
+        debug(3, f"Result payload is not json : {e}", args)
+        print_response(result, args)
+        
 
 def stop_script(args):
     """
@@ -242,7 +260,6 @@ def stop_script(args):
     response = call_shelly(request, args)
     print_response(response.json(), args)
 
-
 def update_script(args):
     """
     Calling endpoint https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script#scriptputcode
@@ -250,7 +267,6 @@ def update_script(args):
     debug(2, f"Update script {args.id} with file {args.file}", args)
 
     upload_file_in_chunks(args, 'Script.PutCode')
-
 
 def delete_script(args):
     """
