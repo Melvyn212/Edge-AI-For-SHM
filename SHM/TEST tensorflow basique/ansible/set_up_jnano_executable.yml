@@ -48,11 +48,6 @@
       become: yes
 
      # Update and tidy apt
-    - name: Install apt-utils
-      apt:
-        name: apt-utils
-        state: present
-      become: yes
 
     - name: Run apt update
       apt:
