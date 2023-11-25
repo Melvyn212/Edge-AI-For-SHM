@@ -16,7 +16,9 @@
       - 0.uk.pool.ntp.org
       - 0.pool.ntp.org
       - 1.pool.ntp.org
-    ansible_user: melvyn212
+    ansible_user:
+      - adehundeag
+      - jwu
 
 
   tasks:
@@ -47,19 +49,6 @@
       when: timesyncd_config.changed
       become: yes
 
-     # Update and tidy apt
-
-    - name: Run apt update
-      apt:
-        update_cache: yes
-      become: yes
-
-    - name: Run apt upgrade
-      apt:
-        name: '*'
-        state: latest
-      become: yes
-
     - name: Remove packages that are no longer required
       apt:
         autoremove: yes
@@ -80,11 +69,14 @@
         name: docker.io
         state: present
 
-    - name: Add user to Docker group
-      user:
-        name: "{{ ansible_user }}"
+    - name: Add users to Docker group
+      ansible.builtin.user:
+        name: "{{ item }}"
         groups: docker
         append: yes
+      loop: "{{ ansible_user }}"
+
+
 
     - name: Install NVIDIA Docker runtime
       shell: |
