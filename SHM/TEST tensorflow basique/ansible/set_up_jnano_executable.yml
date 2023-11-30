@@ -70,7 +70,7 @@
         state: present
 
     - name: Add users to Docker group
-      ansible.builtin.user:
+      user:
         name: "{{ item }}"
         groups: docker
         append: yes
@@ -98,10 +98,3 @@
       apt:
        name: libjson-pp-perl
        state: present
-
-
-    - name: Installer jetson-stats (incluant jtop) via pip
-      become: yes
-      pip:
-        name: jetson-stats
-        extra_args: --upgrade
