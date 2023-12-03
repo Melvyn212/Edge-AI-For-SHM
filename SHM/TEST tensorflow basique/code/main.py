@@ -1,13 +1,13 @@
-from codecarbon import EmissionsTracker
+from monitoring import DataCollector
 
-tracker = EmissionsTracker()
-tracker.start()
+data_collector = DataCollector()
+
+data_collector.start_collecting()
 
 
 from sklearn import datasets
 from Processing import IrisDataProcessor 
 from model import IrisModel  
-
 
 
 def main():
@@ -38,4 +38,4 @@ if __name__ == "__main__":
     main()
 
 
-tracker.stop()
+data_collector.stop_collecting()
