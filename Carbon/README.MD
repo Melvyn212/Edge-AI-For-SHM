@@ -5,7 +5,7 @@
 ## Commands
 
 - Installation: `pip install codecarbon `
-- Get ID: `! codecarbon init<script-id>`*
+- Get ID: `! codecarbon init`
 - Python: '
 from codecarbon import track_emissions
 @track_emissions()
