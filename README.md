@@ -3,7 +3,8 @@
 ## Installation
 
 ***TODO***
-
+1.Faire les mesures énergétiques avec différents outils(Shelly,Carbon,etc.) pour vérifier l'authencité des outils.
+2.En changeant l'algorithme du learning, on trouvera des compromises entre la consommation et la preformance.
 
 
 <details>
