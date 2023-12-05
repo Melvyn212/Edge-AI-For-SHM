@@ -63,10 +63,6 @@
           - git
           - build-essential
         state: present
-    
-    - name: Install pip packages
-      pip:
-      
 
     - name: Install Docker
       apt:

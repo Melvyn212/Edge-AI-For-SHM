@@ -1,13 +1,10 @@
-from monitoring import DataCollector
 
-data_collector = DataCollector()
-
-data_collector.start_collecting()
 
 
 from sklearn import datasets
 from Processing import IrisDataProcessor 
 from model import IrisModel  
+
 
 
 def main():
@@ -38,4 +35,3 @@ if __name__ == "__main__":
     main()
 
 
-data_collector.stop_collecting()
