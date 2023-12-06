@@ -12,7 +12,6 @@ def main():
     iris = datasets.load_iris()
     X, y = iris.data, iris.target
 
-    # Initialisation et traitement des données
     data_processor = IrisDataProcessor(X, y)
     data_processor.split_data()
     data_processor.normalize_features()
