@@ -127,10 +127,3 @@ class Parse:
                     time = time + self.interval
 
         return csv_file
-
-if __name__ == '__main__':
-    interval = 1000
-    log_file = 'output_log.txt'
-
-    parser = Parse(interval, log_file)
-    parser.parse_file()

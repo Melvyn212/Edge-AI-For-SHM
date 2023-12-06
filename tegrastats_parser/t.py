@@ -12,7 +12,7 @@ verbose = False
 tegrastats = Tegrastats(interval, log_file, verbose)
 process=tegrastats.run()
 
-time.sleep(5)
+time.sleep(20)
 tegrastats.stop(process)
 
 parser = Parse(interval, log_file)

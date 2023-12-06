@@ -16,6 +16,9 @@ ENV LC_ALL en_US.UTF-8
 # Définir PYTHONIOENCODING à utf-8
 ENV PYTHONIOENCODING=utf-8
 
+RUN pip3 install codecarbon
+
+
 # Installer scikit-learn et nettoyer
 RUN apt-get install -y python3-sklearn && \
     rm -rf /var/lib/apt/lists/*
