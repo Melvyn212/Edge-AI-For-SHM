@@ -1,7 +1,5 @@
-import argparse
 from tegrastats import Tegrastats
 from parse import Parse
-import subprocess
 import time
 
 
@@ -12,7 +10,7 @@ verbose = False
 tegrastats = Tegrastats(interval, log_file, verbose)
 process=tegrastats.run()
 
-time.sleep(20)
+time.sleep(4)
 tegrastats.stop(process)
 
 parser = Parse(interval, log_file)
