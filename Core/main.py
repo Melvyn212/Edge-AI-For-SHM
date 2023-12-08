@@ -1,33 +1,34 @@
-#from codecarbon import EmissionsTracker
+from codecarbon import EmissionsTracker
 from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
 from outputdir import create_output_directory
 import os
 
-
-
-
 base_path='/output'
 output_path=create_output_directory(base_path)
 
-interval = 1000 #ms
+interval = 15000 #ms
 log_file = os.path.join(output_path, 'output_log.txt')
 verbose = False
-
-tegrastats = Tegrastats(interval, log_file, verbose)
-process=tegrastats.run()
 
 tracker = EmissionsTracker(output_dir=output_path)
 tracker.start()
 
+tegrastats = Tegrastats(interval, log_file, verbose)
+process=tegrastats.run()
 
+
+
+#########################################################################################
+#CODE A MONITORER
+#########################################################################################
 
 from sklearn import datasets
 from Processing import IrisDataProcessor 
 from model import IrisModel 
 import time 
 
-time.sleep(4)
+time.sleep(300)
 
 
 def main():
@@ -57,9 +58,19 @@ if __name__ == "__main__":
     main()
 
 
-emissions = tracker.stop()
-print(f"Emissions: {emissions} kg")
+
+
+
+#########################################################################################
+#FIN DU CODE A MONITORER
+#########################################################################################
+
+
+
 
 tegrastats.stop(process)
 parser = Parse(interval, log_file)
 parser.parse_file()
+
+emissions = tracker.stop()
+print(f"Emissions: {emissions} kg")
