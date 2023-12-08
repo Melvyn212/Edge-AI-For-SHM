@@ -7,7 +7,7 @@ import os
 base_path='/output'
 output_path=create_output_directory(base_path)
 
-interval = 15000 #ms
+interval = 1000 #ms
 log_file = os.path.join(output_path, 'output_log.txt')
 verbose = False
 
