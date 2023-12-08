@@ -1,25 +1,28 @@
 from codecarbon import EmissionsTracker
 from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
-from outputdir import create_output_directory
+from tools import create_output_directory
+from tools import plot
 import os
 
 base_path='/output'
 output_path=create_output_directory(base_path)
 
-interval = 1000 #ms
-log_file = os.path.join(output_path, 'output_log.txt')
-verbose = False
-
+#########################################################################################
+#Codecarbon
 tracker = EmissionsTracker(output_dir=output_path)
 tracker.start()
+########################################################################################
 
+#tegrastats
+interval = 1000 #ms
+log_file = os.path.join(output_path, 'output_log.txt')
+csv_file=os.path.join(output_path, 'output_log.csv')
+verbose = False
 tegrastats = Tegrastats(interval, log_file, verbose)
 process=tegrastats.run()
+########################################################################################
 
-
-
-#########################################################################################
 #CODE A MONITORER
 #########################################################################################
 
@@ -28,7 +31,7 @@ from Processing import IrisDataProcessor
 from model import IrisModel 
 import time 
 
-time.sleep(300)
+time.sleep(10)
 
 
 def main():
@@ -67,10 +70,24 @@ if __name__ == "__main__":
 
 
 
+#tegrastats
 
 tegrastats.stop(process)
 parser = Parse(interval, log_file)
 parser.parse_file()
+########################################################################################
 
 emissions = tracker.stop()
 print(f"Emissions: {emissions} kg")
+#Codecarbon
+
+########################################################################################
+
+
+file_info_list = [
+    (csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"tegrastats"),
+        # Ajouter d'autres fichiers et colonnes selon le besoin
+]
+output_file = os.path.join(output_path, 'power_consumption_plot.png')
+
+plot(file_info_list, output_file)

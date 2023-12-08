@@ -18,6 +18,9 @@ ENV PYTHONIOENCODING=utf-8
 
 RUN pip3 install codecarbon
 
+RUN pip3 install --upgrade matplotlib
+
+
 # Installer scikit-learn et nettoyer
 RUN apt-get install -y python3-sklearn && \
     rm -rf /var/lib/apt/lists/*
