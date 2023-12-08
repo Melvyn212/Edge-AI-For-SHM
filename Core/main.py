@@ -1,17 +1,25 @@
-from codecarbon import EmissionsTracker
+#from codecarbon import EmissionsTracker
 from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
+from outputdir import create_output_directory
+import os
 
-tracker = EmissionsTracker()
-tracker.start()
+
+
+
+base_path='/output'
+output_path=create_output_directory(base_path)
 
 interval = 1000 #ms
-log_file = 'output_log.txt'
+log_file = os.path.join(output_path, 'output_log.txt')
 verbose = False
-
 
 tegrastats = Tegrastats(interval, log_file, verbose)
 process=tegrastats.run()
+
+tracker = EmissionsTracker(output_dir=output_path)
+tracker.start()
+
 
 
 from sklearn import datasets
