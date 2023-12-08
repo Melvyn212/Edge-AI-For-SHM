@@ -3,7 +3,7 @@ from parse import Parse
 import time
 
 
-interval = 1000
+interval = 1000 #ms
 log_file = 'output_log.txt'
 verbose = False
 
@@ -12,6 +12,5 @@ process=tegrastats.run()
 
 time.sleep(4)
 tegrastats.stop(process)
-
 parser = Parse(interval, log_file)
 parser.parse_file()

@@ -3,6 +3,8 @@ import psutil
 import os
 import signal
 
+
+
 class Tegrastats:
     def __init__(self, interval, log_file, verbose):
         self.interval = interval

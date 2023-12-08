@@ -18,10 +18,8 @@ ENV PYTHONIOENCODING=utf-8
 
 RUN pip3 install codecarbon
 
-COPY /usr/bin/tegrastats /usr/bin/tegrastats
-
 # Installer scikit-learn et nettoyer
 RUN apt-get install -y python3-sklearn && \
     rm -rf /var/lib/apt/lists/*
 
-# Instructions supplémentaires pour votre Dockerfile...
+CMD ["python3", "/EdgeAI/main.py"]
