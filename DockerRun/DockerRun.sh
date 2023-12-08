@@ -4,7 +4,7 @@
 TEGRASTATS_PATH="/usr/bin/tegrastats"
 CODE_PATH="/home/adehundeag/Edge-AI-For-SHM/Core"
 OUTPUT_PATH="/home/adehundeag/Edge-AI-For-SHM/output"
-DOCKER_IMAGE="tensorflow_test3:latest"
+DOCKER_IMAGE="melvyn212/edge_ai_jnano:latest"
 
 # Exécutez le conteneur Docker avec les volumes montés
 sudo docker run -it --rm \

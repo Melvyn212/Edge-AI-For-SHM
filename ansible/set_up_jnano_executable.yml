@@ -60,6 +60,7 @@
       apt:
         name:
           - python3-pip
+          - python-pip
           - git
           - build-essential
         state: present
@@ -68,6 +69,12 @@
       apt:
         name: docker.io
         state: present
+
+    - name: Install Docker 
+      pip:
+        name: docker-py
+        state: present
+
 
     - name: Add users to Docker group
       user:
@@ -98,3 +105,8 @@
       apt:
        name: libjson-pp-perl
        state: present
+
+    - name: Pull Ansible Docker image
+      docker_image:
+        name: melvyn212/edge_ai_jnano
+        state: present
