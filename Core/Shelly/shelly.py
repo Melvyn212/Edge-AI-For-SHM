@@ -4,7 +4,6 @@ from argparse import ArgumentParser
 from requests import Session, Request
 import json
 import sys
-import csv
 
 def main():
     # create the top-level parser
@@ -241,25 +240,13 @@ def call_script_api(args):
     response = call_shelly(request, args)
     
     result = response.json()
-    # power_data = [result['current'], result['power'], result['timestamp'], result['voltage']]
-    # write_to_csv('power_measurements.csv', power_data, header=['Current', 'Power', 'Timestamp', 'Voltage'])
     try:
         json_result = json.loads(result)
-        csv_result= list_to_csv_dicts(result, "shelly_meas.csv")
-        print_response(csv_result, args)
+        print_response(json_result, args)
     except (ValueError, TypeError) as e:
         debug(3, f"Result payload is not json : {e}", args)
         print_response(result, args)
         
-def list_to_csv_dicts(my_list, file_name):
-    if not my_list:
-        return  # Exit if the list is empty
-
-    with open(file_name, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=my_list[0].keys())
-        writer.writeheader()
-        for item in my_list:
-            writer.writerow(item)
 
 def stop_script(args):
     """
@@ -302,21 +289,5 @@ def switch_get_status(args):
     response = call_shelly(request, args)
     print_response(response.json(), args)
 
-    data = response.json()
-    # Prepare data to be written, e.g., [data['power'], data['timestamp']]
-    prepared_data = [data['key1'], data['key2'], ...]  # Replace with actual keys
-    write_to_csv('shelly_measurements.csv', prepared_data, header=['Power', 'Timestamp'])
-
-
-def write_to_csv(file_name, data, header=None):
-    with open(file_name, 'a', newline='') as file:
-        writer = csv.writer(file)
-        if header:
-            writer.writerow(header)
-        writer.writerow(data)
-
-
 if __name__ == '__main__':
     main()
-
-
