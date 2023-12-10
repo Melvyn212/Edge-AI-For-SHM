@@ -3,6 +3,14 @@ from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
 from tools import create_output_directory
 from tools import plot
+from Shelly.shellyData import create_script
+from Shelly.shellyData import start_script
+from Shelly.shellyData import call_script
+from Shelly.shellyData import stop_script
+from Shelly.shellyData import delete_script
+
+
+
 import os
 
 base_path='/output'
@@ -22,6 +30,9 @@ verbose = False
 tegrastats = Tegrastats(interval, log_file, verbose)
 process=tegrastats.run()
 ########################################################################################
+#SHELLY
+create_script('power', 'PowerTracker.js')
+start_script(1)
 
 #CODE A MONITORER
 #########################################################################################
@@ -68,18 +79,23 @@ if __name__ == "__main__":
 #FIN DU CODE A MONITORER
 #########################################################################################
 
-
+#SHELLY
+csv_file = call_script(1, "api?yield", "shelly.csv",base_path)
+if csv_file:
+    print(f"Les données de shelly ont été enregistrées dans {csv_file}")
+stop_script(1)
+delete_script(1)
+########################################################################################
 
 #tegrastats
-
 tegrastats.stop(process)
 parser = Parse(interval, log_file)
 parser.parse_file()
 ########################################################################################
 
+#Codecarbon
 emissions = tracker.stop()
 print(f"Emissions: {emissions} kg")
-#Codecarbon
 
 ########################################################################################
 
