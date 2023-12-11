@@ -3,17 +3,32 @@ import json
 import csv
 import os
 
-SHELLY_SCRIPT_PATH = './Shelly/shelly.py'
+SHELLY_SCRIPT_PATH = './EdgeAI/Shelly/shelly.py'
+
+import csv
 
 def json_to_csv(json_data, csv_file_name):
     # Assurez-vous que json_data est une liste de dictionnaires
     if not json_data or not isinstance(json_data, list):
         return
 
+    # Modifier les valeurs de la colonne 'power' avant d'écrire
+    for row in json_data:
+        row['power'] = row['power'] * 1000 if 'power' in row else row['power']
+
     with open(csv_file_name, 'w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=json_data[0].keys())
         writer.writeheader()
         writer.writerows(json_data)
+
+# Exemple d'utilisation
+json_data = [
+    {"current": 0.023, "power": 1.7, "timestamp": 1702223808, "voltage": 225.7},
+    {"current": 0.023, "power": 1.7, "timestamp": 1702223809, "voltage": 225.7}
+]
+
+json_to_csv(json_data, "output.csv")
+
 
 import subprocess
 

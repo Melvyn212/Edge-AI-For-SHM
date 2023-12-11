@@ -1,11 +1,16 @@
 import csv
 import os
 import re
+import datetime
 
 class Parse:
-    def __init__(self, interval, log_file):
+    def __init__(self, interval, log_file,start_time):
         self.interval = int(interval)
         self.log_file = log_file
+        if isinstance(start_time, datetime.datetime):
+            self.start_time = start_time
+        else:
+            raise TypeError("start_time must be a datetime.datetime object")
 
     def parse_ram(self, lookup_table, ram):
         lookup_table['Used RAM (MB)'] = float(ram[0])
@@ -105,25 +110,27 @@ class Parse:
         return labels
 
     def parse_file(self):
-        if not os.path.exists(self.log_file):
-            print('Path to log file is invalid\n')
-            return
+            if not os.path.exists(self.log_file):
+                print('Path to log file is invalid\n')
+                return
 
-        csv_file = os.path.splitext(self.log_file)[0] + '.csv'
+            csv_file = os.path.splitext(self.log_file)[0] + '.csv'
 
-        with open(csv_file, 'w', newline='') as fopen:
-            writer = csv.writer(fopen)
+            with open(csv_file, 'w', newline='') as fopen:
+                writer = csv.writer(fopen)
 
-            with open(self.log_file, 'r') as log:
-                data = log.readlines()
-                writer.writerow([data[0]])
-                labels = self.create_header(data[1])
-                writer.writerow(labels)
-                time = 0
+                with open(self.log_file, 'r') as log:
+                    data = log.readlines()
+                    writer.writerow([data[0]])
+                    labels = self.create_header(data[1])
+                    writer.writerow(labels)
+                    time = 0
 
-                for i, line in enumerate(data[1:]):
-                    row = [i, time] + list(self.parse_data(line).values())
-                    writer.writerow(row)
-                    time = time + self.interval
+                    for i, line in enumerate(data[1:]):
+                        current_time = self.start_time + datetime.timedelta(milliseconds=time)
+                        current_time = int(current_time.timestamp())
+                        row = [i, current_time] + list(self.parse_data(line).values())
+                        writer.writerow(row)
+                        time += self.interval
 
-        return csv_file
+            return csv_file

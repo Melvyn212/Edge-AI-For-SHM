@@ -35,9 +35,9 @@ def plot(file_info_list, output_file):
     plt.figure(figsize=(12, 6))
 
     for file_info in file_info_list:
-        file_path, time_column, power_column, label = file_info
-        data = pd.read_csv(file_path, skiprows=1)
-        data[time_column] = pd.to_datetime(data[time_column], unit='ms')
+        file_path, time_column, power_column, label, skiprows = file_info
+        data = pd.read_csv(file_path, skiprows=skiprows)
+        data[time_column] = pd.to_datetime(data[time_column], unit='s')
         plt.plot(data[time_column], data[power_column], marker='o', label=label)
 
     plt.title("Comparaison de la consommation de puissance")

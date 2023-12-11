@@ -2,7 +2,7 @@ import subprocess
 import psutil
 import os
 import signal
-
+import datetime
 
 
 class Tegrastats:
@@ -26,8 +26,9 @@ class Tegrastats:
 
         try:
             process = subprocess.Popen(cmd,preexec_fn=os.setsid, shell=True)
+            current_time_utc = datetime.datetime.utcnow().replace(microsecond=0)
             print("Running tegrastats...")
-            return process
+            return process,current_time_utc
         except subprocess.CalledProcessError:
             print(f"Error running tegrastats!\nCommand used {cmd}")
             return False

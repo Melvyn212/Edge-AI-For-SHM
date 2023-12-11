@@ -8,11 +8,14 @@ from Shelly.shellyData import start_script
 from Shelly.shellyData import call_script
 from Shelly.shellyData import stop_script
 from Shelly.shellyData import delete_script
-
-
-
 import os
 
+
+
+
+
+
+# base_path="/home/adehundeag/Edge-AI-For-SHM/out"
 base_path='/output'
 output_path=create_output_directory(base_path)
 
@@ -24,15 +27,17 @@ tracker.start()
 
 #tegrastats
 interval = 1000 #ms
-log_file = os.path.join(output_path, 'output_log.txt')
-csv_file=os.path.join(output_path, 'output_log.csv')
+log_file = os.path.join(output_path, 'tegra_output_log.txt')
+tegr_csv_file=os.path.join(output_path, 'tegra_output_log.csv')
 verbose = False
 tegrastats = Tegrastats(interval, log_file, verbose)
-process=tegrastats.run()
+process,current_time=tegrastats.run()
 ########################################################################################
 #SHELLY
-create_script('power', 'PowerTracker.js')
+create_script('power', '/EdgeAI/Shelly/PowerTracker.js')
 start_script(1)
+_csv_file=os.path.join(output_path, 'output_log.csv')
+
 
 #CODE A MONITORER
 #########################################################################################
@@ -80,16 +85,16 @@ if __name__ == "__main__":
 #########################################################################################
 
 #SHELLY
-csv_file = call_script(1, "api?yield", "shelly.csv",base_path)
-if csv_file:
-    print(f"Les données de shelly ont été enregistrées dans {csv_file}")
+shelly_csv_file = call_script(1, "api?yield", "shelly.csv",output_path)
+if shelly_csv_file:
+    print(f"Les données de shelly ont été enregistrées dans {shelly_csv_file}")
 stop_script(1)
 delete_script(1)
 ########################################################################################
 
 #tegrastats
 tegrastats.stop(process)
-parser = Parse(interval, log_file)
+parser = Parse(interval, log_file,current_time)
 parser.parse_file()
 ########################################################################################
 
@@ -101,8 +106,9 @@ print(f"Emissions: {emissions} kg")
 
 
 file_info_list = [
-    (csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"tegrastats"),
-        # Ajouter d'autres fichiers et colonnes selon le besoin
+    (tegr_csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"Tegrastats",1),
+     (shelly_csv_file, 'timestamp', 'power',"Shelly",0)
+        # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
 ]
 output_file = os.path.join(output_path, 'power_consumption_plot.png')
 
