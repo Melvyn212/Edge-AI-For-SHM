@@ -34,6 +34,7 @@ tegrastats = Tegrastats(interval, log_file, verbose)
 process,current_time=tegrastats.run()
 ########################################################################################
 #SHELLY
+
 create_script('power', '/EdgeAI/Shelly/PowerTracker.js')
 start_script(1)
 _csv_file=os.path.join(output_path, 'output_log.csv')
@@ -47,7 +48,7 @@ from Processing import IrisDataProcessor
 from model import IrisModel 
 import time 
 
-time.sleep(10)
+time.sleep(60)
 
 
 def main():

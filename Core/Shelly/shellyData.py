@@ -21,14 +21,6 @@ def json_to_csv(json_data, csv_file_name):
         writer.writeheader()
         writer.writerows(json_data)
 
-# Exemple d'utilisation
-json_data = [
-    {"current": 0.023, "power": 1.7, "timestamp": 1702223808, "voltage": 225.7},
-    {"current": 0.023, "power": 1.7, "timestamp": 1702223809, "voltage": 225.7}
-]
-
-json_to_csv(json_data, "output.csv")
-
 
 import subprocess
 

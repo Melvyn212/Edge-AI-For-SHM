@@ -38,9 +38,9 @@ def plot(file_info_list, output_file):
         file_path, time_column, power_column, label, skiprows = file_info
         data = pd.read_csv(file_path, skiprows=skiprows)
         data[time_column] = pd.to_datetime(data[time_column], unit='s')
-        plt.plot(data[time_column], data[power_column], marker='o', label=label)
+        plt.plot(data[time_column], data[power_column], label=label)
 
-    plt.title("Comparaison de la consommation de puissance")
+    plt.title("Comparaison de la consommation de puissance  ||  " + str(datetime.datetime.utcnow().strftime("%Y_%m_%d")+' UTC'))
     plt.xlabel("Temps")
     plt.ylabel("Consommation de puissance (mW)")
     plt.legend()
