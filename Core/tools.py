@@ -13,7 +13,7 @@ def create_output_directory(base_path):
     directory_name = f"output_{time_str}"
     full_path = os.path.join(base_path, directory_name)
 
-    os.makedirs(full_path)
+    os.makedirs(full_path,0o777)
     
     return full_path
 
