@@ -108,5 +108,5 @@
 
     - name: Pull Ansible Docker image
       docker_image:
-        name: melvyn212/edge_ai_jnano
+        name: melvyn212/edge_ai_jnano:latest
         state: present
