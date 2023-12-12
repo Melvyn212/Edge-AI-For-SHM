@@ -1,9 +1,9 @@
 #!/bin/bash
-USER="jwu"
+USER="adehundeag"
 # Définissez les chemins dans des variables
 TEGRASTATS_PATH="/usr/bin/tegrastats"
 CODE_PATH="/home/${USER}/Edge-AI-For-SHM/Core"
-OUTPUT_PATH="/home/${USER}Edge-AI-For-SHM/output"
+OUTPUT_PATH="/home/${USER}/Edge-AI-For-SHM/output"
 DOCKER_IMAGE="melvyn212/edge_ai_jnano:latest"
 
 # Exécutez le conteneur Docker avec les volumes montés
