@@ -37,7 +37,9 @@ process,current_time=tegrastats.run()
 
 create_script('power', '/EdgeAI/Shelly/PowerTracker.js')
 start_script(1)
-_csv_file=os.path.join(output_path, 'output_log.csv')
+
+monitoring_thread = threading.Thread(target=call_script_thread, args=(1, "api?yield", "mesure.csv", output_path, 10))
+monitoring_thread.start()
 
 
 #CODE A MONITORER
@@ -48,7 +50,7 @@ from Processing import IrisDataProcessor
 from model import IrisModel 
 import time 
 
-time.sleep(60)
+time.sleep(20)
 
 
 def main():
@@ -78,19 +80,17 @@ if __name__ == "__main__":
     main()
 
 
-
-
-
 #########################################################################################
 #FIN DU CODE A MONITORER
 #########################################################################################
 
 #SHELLY
-shelly_csv_file = call_script(1, "api?yield", "shelly.csv",output_path)
 if shelly_csv_file:
     print(f"Les données de shelly ont été enregistrées dans {shelly_csv_file}")
 stop_script(1)
 delete_script(1)
+
+monitoring_thread.join()
 ########################################################################################
 
 #tegrastats
