@@ -20,6 +20,8 @@ RUN pip3 install codecarbon
 
 RUN pip3 install --upgrade matplotlib
 
+RUN pip3 install thread6
+
 
 # Installer scikit-learn et nettoyer
 RUN apt-get install -y python3-sklearn && \
