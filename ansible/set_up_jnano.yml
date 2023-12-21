@@ -102,23 +102,23 @@
 
 
 
-    - name : Installer curl
+    - name : Install curl tool
       apt:
         name: curl
         state: present
 
-    - name: Installer json_pp (via perl)
+    - name: Install json_pp (via perl)
       apt:
        name: libjson-pp-perl
        state: present
 
 
 
-    - name: Installer jetson-stats (incluant jtop) via pip
+    - name: Install jetson-stats (for jtop) via pip
       become: yes
       pip:
         name: jetson-stats
         extra_args: --upgrade
 
-    - name: Redémarrer le système
+    - name: Reboot the system
       ansible.builtin.reboot:

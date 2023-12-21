@@ -19,12 +19,11 @@
     ansible_user:
       - adehundeag
       - jwu
+      - abonneau
 
 
   tasks:
-
-
-      # Configure NTP
+    # Configure NTP
 
     - name: Set time zone
       timezone:
@@ -96,12 +95,12 @@
       args:
         executable: /bin/bash
 
-    - name : Installer curl
+    - name : Install curl
       apt:
         name: curl
         state: present
 
-    - name: Installer json_pp (via perl)
+    - name: Install json_pp (via perl)
       apt:
        name: libjson-pp-perl
        state: present
