@@ -89,22 +89,3 @@ def stop_process(process):
         process.kill()  # Force l'arrêt du processus si le SIGTERM ne fonctionne pas
     print("Processus arrêté.")
 
-
-
-
-
-
-
-# if __name__ == '__main__':
-#     # Exemple d'utilisation
-#     create_script('power', 'PowerTracker.js')
-#     start_script(1, "api?yield")
-
-#CODE A MONITORER 
-
-#     csv_file = call_script(1, "api?yield", "mesure.csv",'/home/adehundeag/Edge-AI-For-SHM/Core/Shelly')
-#     if csv_file:
-#         print(f"Les données ont été enregistrées dans {csv_file}")
-#     stop_script(1)
-#     delete_script(1)
-
