@@ -18,18 +18,17 @@ import os
 
 
 
-base_path="/home/adehundeag/Edge-AI-For-SHM/Core"
-# base_path='/output'
+#base_path="/home/adehundeag/Edge-AI-For-SHM/Core"
+base_path='/output'
 output_path=create_output_directory(base_path)
 
 # ########################################################################################
 #SHELLY
 
-# create_script('power', '/home/adehundeag/Edge-AI-For-SHM/Core/Shelly/PowerTracker.js')
-# start_script(1,"api?yield")
+create_script('power', '/home/adehundeag/Edge-AI-For-SHM/Core/Shelly/PowerTracker.js')
+start_script(1,"api?yield")
 shelly_log_file = os.path.join(output_path, 'log.json')
 shelly_process = getdata(shelly_log_file) 
-# time.sleep(100)
 shelly_csv_file=os.path.join(output_path, 'shelly.csv')
 
 # #########################################################################################
@@ -92,8 +91,8 @@ time.sleep(3600)
 # #SHELLY
 
 stop_process(shelly_process)
-# stop_script(1)
-# delete_script(1)
+stop_script(1)
+delete_script(1)
 call_script(shelly_log_file,shelly_csv_file)
 
 # ########################################################################################
