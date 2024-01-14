@@ -13,7 +13,7 @@ handle_error() {
 trap finish SIGINT SIGTERM
 trap handle_error ERR
 
-logfile="${1:-/home/adehundeag/Edge-AI-For-SHM/Core/Shelly/log.json}"
+logfile="${1:-/EdgeAI/Shelly/log.json}"
 
 if [ ! "$logfile" ]; then
     echo "Usage: $0 path_to_log_file"
@@ -24,7 +24,7 @@ fi
 echo '[]' > "$logfile"
 
 while true; do
-    output=$(./Shelly/shelly.py -p scripts call 1 "api?yield" | jq '.[-1]')
+    output=$(./EdgeAI/Shelly/shelly.py -p scripts call 1 "api?yield" | jq '.[-1]')
     if [ ! -z "$output" ]; then
         # Utiliser jq pour ajouter les nouvelles données au tableau dans le fichier JSON
         jq --argjson new_data "$output" '. += [$new_data]' "$logfile" > temp.json && mv temp.json "$logfile"

@@ -1,4 +1,4 @@
-# from codecarbon import EmissionsTracker
+from codecarbon import EmissionsTracker
 from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
 from tools import create_output_directory
@@ -12,30 +12,37 @@ from Shelly.shellyData import getdata
 from Shelly.shellyData import stop_process
 import time
 import os
+import subprocess
 
 
 
 
-
-
-base_path="/home/adehundeag/Edge-AI-For-SHM/Core"
-# base_path='/output'
+#base_path="/home/adehundeag/Edge-AI-For-SHM/Core"
+base_path='/output'
 output_path=create_output_directory(base_path)
+# ########################################################################################
+#Frequences processeurs
+freqState="EdgeAI/cpu_gpu_setting/state.sh"
+freqState_out=os.path.join(output_path, "GPU_CPU_Freq")
+
+subprocess.run(['bash', freqState, freqState_out])
+
+
 
 # ########################################################################################
 #SHELLY
 
-# create_script('power', '/home/adehundeag/Edge-AI-For-SHM/Core/Shelly/PowerTracker.js')
-# start_script(1,"api?yield")
+create_script('power', 'EdgeAI/Shelly/PowerTracker.js')
+start_script(1,"api?yield")
 shelly_log_file = os.path.join(output_path, 'log.json')
 shelly_process = getdata(shelly_log_file) 
-# time.sleep(100)
+
 shelly_csv_file=os.path.join(output_path, 'shelly.csv')
 
 # #########################################################################################
 # #Codecarbon
-# tracker = EmissionsTracker(output_dir=output_path)
-# tracker.start()
+tracker = EmissionsTracker(output_dir=output_path)
+tracker.start()
 # ########################################################################################
 
 #tegrastats
@@ -49,40 +56,45 @@ process,current_time=tegrastats.run()
 # #CODE A MONITORER
 # #########################################################################################
 
-# from sklearn import datasets
-# from Processing import IrisDataProcessor 
-# from model import IrisModel 
-# import time 
-
-time.sleep(3600)
+time.sleep(120)
 
 
+def run_script(script_name, argument1=None, argument2=None):
+    # Construire la liste de commande
+    command = ["python3", script_name]
+    if argument1:
+        command.append(argument1)
+    if argument2:
+        command.append(argument2)
 
-# def main():
-#     # Chargement de l'ensemble de données Iris
-#     iris = datasets.load_iris()
-#     X, y = iris.data, iris.target
+    try:
+        # Exécuter la commande
+        result = subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
 
-#     data_processor = IrisDataProcessor(X, y)
-#     data_processor.split_data()
-#     data_processor.normalize_features()
-#     data_processor.encode_labels()
-#     X_train, X_test, y_train_encoded, y_test_encoded = data_processor.get_processed_data()
+        # Afficher la sortie standard
+        print(f"Sortie du script: {result.stdout}")
 
-#     # Initialisation du modèle
-#     num_features = X_train.shape[1]
-#     num_classes = data_processor.num_classes
-#     model = IrisModel(num_features, num_classes)
+    except subprocess.CalledProcessError as e:
+        # Afficher l'erreur en cas d'échec
+        print(f"Erreur lors de l'exécution du script: {e.stderr}")
 
-#     # Entraînement du modèle
-#     model.train(X_train, y_train_encoded, X_test, y_test_encoded, epochs=10)
 
-#     # Évaluation du modèle
-#     loss, accuracy = model.evaluate(X_test, y_test_encoded)
-#     print(f"Test Accuracy: {accuracy*100:.2f}%")
+if __name__ == "__main__":
+    omnioutput=os.path.join(output_path, 'processed')
+    run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","MSL",omnioutput)
+    print(f"\nLes données ont bien été traitées\n")
+    run_script("/EdgeAI/MODEL/OmniAnomaly/main.py")
 
-# if __name__ == "__main__":
-#     main()
+time.sleep(120)
+
+
+
 
 
 # #########################################################################################
@@ -92,8 +104,8 @@ time.sleep(3600)
 # #SHELLY
 
 stop_process(shelly_process)
-# stop_script(1)
-# delete_script(1)
+stop_script(1)
+delete_script(1)
 call_script(shelly_log_file,shelly_csv_file)
 
 # ########################################################################################
@@ -105,8 +117,8 @@ parser.parse_file()
 # ########################################################################################
 
 # #Codecarbon
-# emissions = tracker.stop()
-# print(f"Emissions: {emissions} kg")
+emissions = tracker.stop()
+print(f"Emissions: {emissions} kg")
 
 # ########################################################################################
 

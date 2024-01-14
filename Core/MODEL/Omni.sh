@@ -1,4 +1,4 @@
-#! bin/bash
+#!/bin/bash
 
 git clone https://github.com/smallcowbaby/OmniAnomaly && cd OmniAnomaly
 
@@ -8,7 +8,7 @@ cd data && wget https://raw.githubusercontent.com/khundman/telemanom/master/labe
 
 pip install -r requirements.txt
 
-python data_preprocess.py <dataset>
+python data_preprocess.py <SMAP>
 
 ## where <dataset> is one of SMAP, MSL or SMD.
 
