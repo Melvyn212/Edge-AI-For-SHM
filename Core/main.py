@@ -69,7 +69,7 @@ process,current_time=tegrastats.run()
 # #CODE A MONITORER
 # #########################################################################################
 
-time.sleep(120)
+time.sleep(1)
 
 
 def run_script(script_name, argument1=None, argument2=None):
@@ -100,11 +100,11 @@ def run_script(script_name, argument1=None, argument2=None):
 
 if __name__ == "__main__":
     omnioutput=os.path.join(output_path, 'processed')
-    run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","MSL",omnioutput)
+    run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","SMD",omnioutput)
     print(f"\nLes données ont bien été traitées\n")
     run_script("/EdgeAI/MODEL/OmniAnomaly/main.py")
 
-time.sleep(120)
+time.sleep(1)
 
 
 
