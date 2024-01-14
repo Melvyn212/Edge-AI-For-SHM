@@ -1,0 +1,6 @@
+"Sun Jan 14 14:24:39 UTC 2024
+"
+Index,Time (mS),Used RAM (MB),Total RAM (MB),Number of Free RAM Blocks,Size of Free RAM Blocks (MB),Used SWAP (MB),Total SWAP (MB),Cached SWAP (MB),CPU Frequency (MHz),CPU 0 Load (%),CPU 1 Load (%),CPU 2 Load (%),CPU 3 Load (%),Used GR3D (%),GR3D Frequency (MHz),Used EMC (%),PLL Temperature (C),CPU Temperature (C),PMIC Temperature (C),GPU Temperature (C),AO Temperature (C),thermal Temperature (C),Current POM_5V_IN Power Consumption (mW),Average POM_5V_IN Power Consumption (mW),Current POM_5V_GPU Power Consumption (mW),Average POM_5V_GPU Power Consumption (mW),Current POM_5V_CPU Power Consumption (mW),Average POM_5V_CPU Power Consumption (mW)
+0,1705242279,1333.0,3964.0,21.0,2.0,209.0,1982.0,16.0,1132.0,58,2,1,1,0.0,,0.0,39.0,44.5,100.0,40.5,50.0,42.75,1889.0,1889.0,85.0,85.0,257.0,257.0
+1,1705242280,1342.0,3964.0,21.0,2.0,209.0,1982.0,16.0,1132.0,3,38,1,7,0.0,,0.0,39.0,45.5,100.0,40.5,50.0,42.5,2603.0,2246.0,85.0,85.0,939.0,598.0
+2,1705242281,1337.0,3964.0,21.0,2.0,209.0,1982.0,16.0,1132.0,83,47,10,21,0.0,,0.0,39.5,44.5,100.0,40.5,50.0,43.0,2646.0,2379.0,85.0,85.0,896.0,697.0

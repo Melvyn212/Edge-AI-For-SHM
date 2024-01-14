@@ -79,11 +79,6 @@ def stop_process(process):
     try:
         process.wait(timeout=5)
     except subprocess.TimeoutExpired:
-<<<<<<< HEAD
-        process.kill()
-    logging.info("Process stopped.")
-=======
         process.kill()  # Force l'arrêt du processus si le SIGTERM ne fonctionne pas
     print("Processus arrêté.")
 
->>>>>>> e76a939488f496c166d0ec2a6614fe0f5ca5272a

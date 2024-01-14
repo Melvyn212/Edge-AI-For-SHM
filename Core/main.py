@@ -27,29 +27,13 @@ freqState_out=os.path.join(output_path, "GPU_CPU_Freq")
 
 subprocess.run(['bash', freqState, freqState_out])
 
-
-<<<<<<< HEAD
-=======
-#base_path="/home/adehundeag/Edge-AI-For-SHM/Core"
-base_path='/output'
-output_path=create_output_directory(base_path)
->>>>>>> e76a939488f496c166d0ec2a6614fe0f5ca5272a
-
 # ########################################################################################
 #SHELLY
 
-<<<<<<< HEAD
-create_script('power', 'EdgeAI/Shelly/PowerTracker.js')
+create_script('power', '/EdgeAI/Shelly/PowerTracker.js')
 start_script(1,"api?yield")
 shelly_log_file = os.path.join(output_path, 'log.json')
 shelly_process = getdata(shelly_log_file) 
-
-=======
-create_script('power', '/home/adehundeag/Edge-AI-For-SHM/Core/Shelly/PowerTracker.js')
-start_script(1,"api?yield")
-shelly_log_file = os.path.join(output_path, 'log.json')
-shelly_process = getdata(shelly_log_file) 
->>>>>>> e76a939488f496c166d0ec2a6614fe0f5ca5272a
 shelly_csv_file=os.path.join(output_path, 'shelly.csv')
 
 # #########################################################################################
@@ -101,8 +85,8 @@ def run_script(script_name, argument1=None, argument2=None):
 if __name__ == "__main__":
     omnioutput=os.path.join(output_path, 'processed')
     run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","SMD",omnioutput)
-    print(f"\nLes données ont bien été traitées\n")
-    run_script("/EdgeAI/MODEL/OmniAnomaly/main.py")
+    # print(f"\nLes données ont bien été traitées\n")
+    # run_script("/EdgeAI/MODEL/OmniAnomaly/main.py")
 
 time.sleep(1)
 
