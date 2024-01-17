@@ -1,0 +1,32 @@
+[
+  {
+    "current": 0.04,
+    "power": 3.2,
+    "timestamp": 1705444799,
+    "voltage": 74.2
+  },
+  {
+    "current": 0.032,
+    "power": 3,
+    "timestamp": 1705444804,
+    "voltage": 75.6
+  },
+  {
+    "current": 0.039,
+    "power": 3.6,
+    "timestamp": 1705444807,
+    "voltage": 226.2
+  },
+  {
+    "current": 0.038,
+    "power": 3.5,
+    "timestamp": 1705444813,
+    "voltage": 226.1
+  },
+  {
+    "current": 0.037,
+    "power": 3.5,
+    "timestamp": 1705444816,
+    "voltage": 226.1
+  }
+]

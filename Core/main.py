@@ -14,6 +14,20 @@ import time
 import os
 import subprocess
 
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],
+            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=2048)])
+    except RuntimeError as e:
+        print(e)
+
+
+
+
 
 
 
@@ -53,17 +67,20 @@ process,current_time=tegrastats.run()
 # #CODE A MONITORER
 # #########################################################################################
 
-time.sleep(1)
+time.sleep(30)
 
 
-def run_script(script_name, argument1=None, argument2=None):
+def run_script(script_name, argument1=None, argument2=None, argument3=None,  argument4=None):
     # Construire la liste de commande
     command = ["python3", script_name]
     if argument1:
         command.append(argument1)
     if argument2:
         command.append(argument2)
-
+    if argument3:
+        command.append(argument3)
+    if argument4:
+        command.append(argument4)
     try:
         # Exécuter la commande
         result = subprocess.run(
@@ -83,12 +100,14 @@ def run_script(script_name, argument1=None, argument2=None):
 
 
 if __name__ == "__main__":
-    omnioutput=os.path.join(output_path, 'processed')
-    #run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","MSL")
+    processed=os.path.join(output_path, 'processed')
+    result=os.path.join(output_path, 'result')
+    run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","MSL",processed)
     print(f"\nLes données ont bien été traitées\n")
-    run_script("/EdgeAI/MODEL/OmniAnomaly/main.py")
+    with tf.device('/GPU:0'):
+        run_script("/EdgeAI/MODEL/OmniAnomaly/main.py",result,processed)
 
-time.sleep(1)
+time.sleep(30)
 
 
 

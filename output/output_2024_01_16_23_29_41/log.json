@@ -1,0 +1,134 @@
+[
+  {
+    "current": 0.036,
+    "power": 3.3,
+    "timestamp": 1705447782,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.039,
+    "power": 4,
+    "timestamp": 1705447784,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.039,
+    "power": 3.7,
+    "timestamp": 1705447786,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.036,
+    "power": 3.1,
+    "timestamp": 1705447788,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.038,
+    "power": 3.2,
+    "timestamp": 1705447790,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.043,
+    "power": 3.7,
+    "timestamp": 1705447793,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.041,
+    "power": 3.5,
+    "timestamp": 1705447794,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447796,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.043,
+    "power": 3.7,
+    "timestamp": 1705447798,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.043,
+    "power": 3.5,
+    "timestamp": 1705447800,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.042,
+    "power": 3.6,
+    "timestamp": 1705447802,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447804,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.044,
+    "power": 3.6,
+    "timestamp": 1705447806,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.043,
+    "power": 3.6,
+    "timestamp": 1705447808,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.043,
+    "power": 3.6,
+    "timestamp": 1705447810,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.043,
+    "power": 3.7,
+    "timestamp": 1705447812,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.042,
+    "power": 3.5,
+    "timestamp": 1705447814,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.042,
+    "power": 3.6,
+    "timestamp": 1705447816,
+    "voltage": 222.9
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447818,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447820,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447822,
+    "voltage": 222.8
+  },
+  {
+    "current": 0.042,
+    "power": 3.7,
+    "timestamp": 1705447824,
+    "voltage": 222.8
+  }
+]
