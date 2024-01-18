@@ -42,3 +42,4 @@ RUN apt-get install -y jq
 RUN apt-get install -y python3-sklearn && \
     rm -rf /var/lib/apt/lists/*
 
+CMD ["python3","EdgeAI/main.py"]
