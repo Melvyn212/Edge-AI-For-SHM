@@ -138,9 +138,9 @@ print(f"Emissions: {emissions} kg")
 
 
 file_info_list = [
+     (tegr_csv_file, 'Time (mS)', 'Current POM_5V_IN Power Consumption (mW)',"Tegrastats",1),
     (tegr_csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"Tegrastats_AVG",1),
-     (shelly_csv_file, 'timestamp', 'power',"Shelly",0),    
-     (tegr_csv_file, 'Time (mS)', 'Current POM_5V_IN Power Consumption (mW)',"Tegrastats",1)
+     (shelly_csv_file, 'timestamp', 'power',"Shelly",0)
 
 
 
