@@ -83,5 +83,23 @@ def plot_loss(file_info_list, output_file):
 
 
 
+file_info_list = [
+    ("tegra_output_log.csv", 'Time (mS)', 'Current POM_5V_IN Power Consumption (mW)',"Tegrastats",1),
+     ("shelly.csv", 'timestamp', 'power',"Shelly",0),    
+         ("tegra_output_log.csv", 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"Tegrastats_AVG",1)
+
+
+        # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
+]
+
+file_info_list_1 = [
+    ("result/training_log.csv", 'Step', 'Training Loss',"Loss",0),
+
+        # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
+]
+
+plot(file_info_list, 'power_consumption_plot.png')
+
+plot_loss(file_info_list_1, 'Loss.png')
 
 

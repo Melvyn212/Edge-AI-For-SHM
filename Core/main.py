@@ -3,6 +3,8 @@ from tegrastats_parser.tegrastats import Tegrastats
 from tegrastats_parser.parse import Parse
 from tools import create_output_directory
 from tools import plot
+from tools import plot_loss
+
 from Shelly.shellyData import create_script
 from Shelly.shellyData import start_script
 from Shelly.shellyData import call_script
@@ -19,15 +21,9 @@ import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:
-        tf.config.experimental.set_virtual_device_configuration(
-            gpus[0],
-            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=2048)])
+        tf.config.experimental.set_memory_growth(gpus[0], True)
     except RuntimeError as e:
         print(e)
-
-
-
-
 
 
 
@@ -51,8 +47,8 @@ shelly_process = getdata(shelly_log_file)
 shelly_csv_file=os.path.join(output_path, 'shelly.csv')
 
 # #########################################################################################
-# #Codecarbon
-tracker = EmissionsTracker(output_dir=output_path)
+#Codecarbon
+tracker = EmissionsTracker(output_dir=output_path,log_level="ERROR")
 tracker.start()
 # ########################################################################################
 
@@ -102,10 +98,11 @@ def run_script(script_name, argument1=None, argument2=None, argument3=None,  arg
 if __name__ == "__main__":
     processed=os.path.join(output_path, 'processed')
     result=os.path.join(output_path, 'result')
+    training_log=os.path.join(result, 'training_log.csv')
     run_script("/EdgeAI/MODEL/OmniAnomaly/data_preprocess.py","MSL",processed)
     print(f"\nLes données ont bien été traitées\n")
     with tf.device('/GPU:0'):
-        run_script("/EdgeAI/MODEL/OmniAnomaly/main.py",result,processed)
+        run_script("/EdgeAI/MODEL/OmniAnomaly/main.py",result,processed,training_log)
 
 time.sleep(30)
 
@@ -132,20 +129,36 @@ parser = Parse(interval, tegr_log_file,current_time)
 parser.parse_file()
 # ########################################################################################
 
-# #Codecarbon
+#Codecarbon
 emissions = tracker.stop()
 print(f"Emissions: {emissions} kg")
 
 # ########################################################################################
 
 
+
 file_info_list = [
-    (tegr_csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"Tegrastats",1),
-     (shelly_csv_file, 'timestamp', 'power',"Shelly",0)
+    (tegr_csv_file, 'Time (mS)', 'Average POM_5V_IN Power Consumption (mW)',"Tegrastats_AVG",1),
+     (shelly_csv_file, 'timestamp', 'power',"Shelly",0),    
+     (tegr_csv_file, 'Time (mS)', 'Current POM_5V_IN Power Consumption (mW)',"Tegrastats",1)
+
+
+
         # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
 ]
+
+file_info_list_1 = [
+    (training_log, 'Step', 'Training Loss',"Loss",0)
+
+        # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
+]
+
+
 output_file = os.path.join(output_path, 'power_consumption_plot.png')
+output_file_1 = os.path.join(output_path, 'Loss.png')
 
 plot(file_info_list, output_file)
+plot_loss(file_info_list_1, output_file_1)
+
 
 
