@@ -50,3 +50,10 @@ Le travail se fera en trois étapes :
 \[6\]	F. Schmidt, F. Chabi, et J.-F. Bercher, « SHM analysis for damage detection using time series analysis methods », in Life-Cycle of Structures and Infrastructure Systems, 1re éd.London: CRC Press, 2023, p. 2227‑2234. doi: 10.1201/9781003323020-272.
 
 </details>
+
+
+git clone https://github.com/Melvyn212/Edge-AI-For-SH  y && ./Edge-AI-For-SHM/ansible/set_up_jnano.sh 
+
+
+./Edge-AI-For-SHM/DockerRun/DockerRun.sh
+
