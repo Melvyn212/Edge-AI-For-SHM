@@ -150,6 +150,7 @@ file_info_list = [
 file_info_list_1 = [
     (training_log, 'Step', 'Training Loss',"Loss",0)
 
+   
         # Ajouter d'autres fichiers et colonnes selon le besoin et ne pas oublier le skiprows a la fin
 ]
 
