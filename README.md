@@ -1,14 +1,4 @@
-# Projet GEN 2023
-
-## Installation
-
-***TODO***
-1.Faire les mesures énergétiques avec différents outils(Shelly,Carbon,etc.) pour vérifier l'authencité des outils.
-2.En changeant l'algorithme du learning, on trouvera des compromises entre la consommation et la preformance.
-
-
-<details>
-<summary><b>Intelligence Artificielle Embarquée : Développement de modèles locaux adaptés à la Surveillance de Santé des Structures</b></summary>
+# Projet GE 2023
 
 
 ## Contexte
